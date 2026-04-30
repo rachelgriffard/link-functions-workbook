@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary Link Functions: An Interactive Guide</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --logit:   #3B82F6;
+      --probit:  #EF4444;
+      --cloglog: #F59E0B;
+      --cauchit: #10B981;
+      --bg:      #F9FAFB;
+      --card:    #FFFFFF;
+      --text:    #111827;
+      --muted:   #6B7280;
+      --border:  #E5E7EB;
+      --blue-dark: #1e3a5f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);
+      color: white;
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+    }
+    header h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: .4rem; }
+    header .sub { font-size: 1.05rem; opacity: .85; max-width: 680px; margin: 0 auto .75rem; }
+    header .course { font-size: .85rem; opacity: .65; letter-spacing: .05em; text-transform: uppercase; }
+    nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: .6rem 1.5rem;
+      position: sticky; top: 0; z-index: 100;
+      display: flex; gap: 1.5rem; overflow-x: auto;
+    }
+    nav a {
+      color: var(--muted); text-decoration: none;
+      font-size: .875rem; white-space: nowrap;
+      padding: .25rem 0;
+      border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    nav a:hover { color: var(--blue-dark); border-bottom-color: var(--logit); }
+    main { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    section { margin-bottom: 4rem; scroll-margin-top: 56px; }
+    h2 {
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--blue-dark); margin-bottom: .35rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 1.25rem 0 .4rem; }
+    p { margin-bottom: .9rem; }
+    a { color: var(--logit); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.25rem 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .card-title { font-weight: 600; margin-bottom: .75rem; color: var(--blue-dark); }
+    /* callouts */
+    .callout {
+      border-left: 4px solid var(--logit);
+      background: #EFF6FF;
+      padding: .9rem 1.1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.1rem 0;
+    }
+    .callout.amber { background: #FFFBEB; border-left-color: var(--cloglog); }
+    .callout.red   { background: #FEF2F2; border-left-color: var(--probit); }
+    .callout.green { background: #F0FDF4; border-left-color: var(--cauchit); }
+    /* controls */
+    .controls { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .ctrl {
+      display: flex; flex-direction: column; gap: .2rem;
+      min-width: 180px; flex: 1;
+    }
+    .ctrl label { font-size: .82rem; color: var(--muted); font-weight: 500; }
+    .ctrl .val { font-size: .88rem; font-weight: 700; color: var(--text); }
+    input[type=range] { width: 100%; cursor: pointer; accent-color: var(--blue-dark); }
+    select {
+      padding: .3rem .6rem; border: 1px solid var(--border);
+      border-radius: 6px; font-size: .9rem;
+      background: white; color: var(--text);
+      cursor: pointer;
+    }
+    /* legend */
+    .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: .75rem; }
+    .legend-item { display: flex; align-items: center; gap: .4rem; font-size: .875rem; }
+    .legend-swatch { width: 20px; height: 3px; border-radius: 2px; }
+    /* table */
+    table { width: 100%; border-collapse: collapse; font-size: .875rem; margin: 1rem 0; }
+    th { background: #F3F4F6; padding: .65rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); }
+    td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    /* badges */
+    .badge {
+      display: inline-block; padding: .1rem .45rem;
+      border-radius: 4px; font-size: .75rem; font-weight: 600;
+      white-space: nowrap;
+    }
+    .bl { background: #DBEAFE; color: #1D4ED8; }
+    .br { background: #FEE2E2; color: #991B1B; }
+    .ba { background: #FEF3C7; color: #92400E; }
+    .bg { background: #D1FAE5; color: #065F46; }
+    /* two-column */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media(max-width:660px) { .two-col { grid-template-columns: 1fr; } header h1 { font-size: 1.65rem; } }
+    /* tabs */
+    .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn {
+      padding: .5rem 1.1rem; border: none; background: none;
+      font-size: .875rem; color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn.active { color: var(--logit); border-bottom-color: var(--logit); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    /* SVG helpers */
+    .grid line { stroke: #F0F0F0; }
+    .grid path { stroke-width: 0; }
+    .crosshair { stroke: #9CA3AF; stroke-width: 1; stroke-dasharray: 4 3; }
+    .axis-label { font-size: 12px; fill: var(--muted); }
+    /* tooltip */
+    #tooltip {
+      position: fixed;
+      background: rgba(17,24,39,.9);
+      color: white;
+      padding: .45rem .7rem;
+      border-radius: 6px;
+      font-size: .78rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .1s;
+      z-index: 999;
+      line-height: 1.6;
+    }
+    /* checkboxes row */
+    .check-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: .5rem 0 1rem; }
+    .check-item { display: flex; align-items: center; gap: .35rem; cursor: pointer; font-size: .875rem; }
+    .check-item input { cursor: pointer; accent-color: currentColor; width: 15px; height: 15px; }
+    .check-logit   { color: var(--logit); }
+    .check-probit  { color: var(--probit); }
+    .check-cloglog { color: var(--cloglog); }
+    .check-cauchit { color: var(--cauchit); }
+    /* formula box */
+    .formula-box {
+      background: #F8FAFF;
+      border: 1px solid #C7D9F5;
+      border-radius: 8px;
+      padding: .9rem 1.2rem;
+      margin: .9rem 0;
+      overflow-x: auto;
+    }
+    /* scenario cards */
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1rem; margin-top: 1rem; }
+    .scenario-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      background: white;
+    }
+    .scenario-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+    .scenario-card p { font-size: .82rem; color: var(--muted); margin-bottom: .5rem; }
+    .scenario-card .rec { font-size: .8rem; font-weight: 600; }
+    footer {
+      text-align: center; padding: 2rem;
+      color: var(--muted); font-size: .82rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Binary Outcome Link Functions</h1>
+  <p class="sub">An interactive exploration of logit, probit, complementary log-log, and why choosing the right link matters at the tails</p>
+  <p class="course">BIOS 910 &nbsp;·&nbsp; Biostatistics</p>
+</header>
+
+<nav>
+  <a href="#intro">Introduction</a>
+  <a href="#compare">Compare Links</a>
+  <a href="#tolerance">Tolerance Framework</a>
+  <a href="#interp">Interpretability Tradeoff</a>
+  <a href="#examples">Real-World Examples</a>
+  <a href="#guide">Decision Guide</a>
+</nav>
+
+<div id="tooltip"></div>
+
+<main>
+
+<!-- ===== SECTION 1: INTRO ===== -->
+<section id="intro">
+  <h2>What Is a Link Function?</h2>
+  <p>
+    Generalized Linear Models (GLMs) extend linear regression to outcomes that aren't
+    continuous and symmetric. For a binary outcome \(Y \in \{0,1\}\), we model the
+    probability \(p = P(Y=1 \mid \mathbf{X})\) by connecting it to a linear predictor
+    through a <strong>link function</strong> \(g\):
+  </p>
+  <div class="formula-box">
+    \[ g(p) = \eta = \beta_0 + \beta_1 X_1 + \cdots + \beta_k X_k \]
+  </div>
+  <p>
+    The link function \(g\) maps the probability (which lives in \([0,1]\)) to the
+    entire real line (where the linear predictor lives). Different choices of \(g\)
+    produce different models with different assumptions, interpretations, and behaviors
+    — especially at extreme probabilities.
+  </p>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">The Four Links We'll Explore</div>
+      <table>
+        <thead><tr><th>Name</th><th>Link \(g(p)\)</th><th>Inverse \(g^{-1}(\eta)\)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bl">Logit</span></td>
+            <td>\(\log\!\left(\frac{p}{1-p}\right)\)</td>
+            <td>\(\frac{1}{1+e^{-\eta}}\)</td>
+          </tr>
+          <tr>
+            <td><span class="badge br">Probit</span></td>
+            <td>\(\Phi^{-1}(p)\)</td>
+            <td>\(\Phi(\eta)\)</td>
+          </tr>
+          <tr>
+            <td><span class="badge ba">Cloglog</span></td>
+            <td>\(\log(-\log(1-p))\)</td>
+            <td>\(1 - e^{-e^\eta}\)</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg">Cauchit</span></td>
+            <td>\(\tan(\pi(p - \tfrac{1}{2}))\)</td>
+            <td>\(\frac{1}{2} + \frac{\arctan(\eta)}{\pi}\)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Key Question</div>
+      <p>
+        The <strong>logit</strong> is by far the most popular because its
+        coefficients exponentiate to <em>odds ratios</em> — a familiar quantity.
+        But odds ratios aren't always the right lens. When should we give up
+        that interpretability?
+      </p>
+      <div class="callout amber">
+        The answer almost always comes down to <strong>what happens at the tails</strong>
+        (very small or very large probabilities) and what the
+        <strong>underlying process</strong> actually looks like.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION 2: INTERACTIVE COMPARISON ===== -->
+<section id="compare">
+  <h2>Comparing the Link Functions</h2>
+  <p>
+    All four links map the linear predictor \(\eta\) to a probability. They look
+    similar in the middle — but diverge substantially near 0 and 1. Use the controls
+    below to explore how changing the intercept \(\beta_0\) and slope \(\beta_1\)
+    (where \(\eta = \beta_0 + \beta_1 X\)) moves and stretches the curves.
+    <strong>Hover over the chart</strong> to read off exact values for each model.
+  </p>
+
+  <div class="card">
+    <div class="check-row">
+      <label class="check-item check-logit">
+        <input type="checkbox" id="chk-logit" checked /> <span>Logit</span>
+      </label>
+      <label class="check-item check-probit">
+        <input type="checkbox" id="chk-probit" checked /> <span>Probit</span>
+      </label>
+      <label class="check-item check-cloglog">
+        <input type="checkbox" id="chk-cloglog" checked /> <span>Cloglog</span>
+      </label>
+      <label class="check-item check-cauchit">
+        <input type="checkbox" id="chk-cauchit" checked /> <span>Cauchit</span>
+      </label>
+    </div>
+    <div id="viz-compare" style="width:100%;"></div>
+    <div class="controls" style="margin-top:1rem;">
+      <div class="ctrl">
+        <label>Intercept \(\beta_0\) <span class="val" id="val-b0">0.00</span></label>
+        <input type="range" id="sl-b0" min="-3" max="3" step="0.1" value="0" />
+      </div>
+      <div class="ctrl">
+        <label>Slope \(\beta_1\) <span class="val" id="val-b1">1.00</span></label>
+        <input type="range" id="sl-b1" min="0.2" max="4" step="0.05" value="1" />
+      </div>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:.5rem;">
+      X-axis: covariate X (range −5 to 5). Y-axis: P(Y=1 | X). The linear predictor is η = β₀ + β₁·X.
+    </p>
+  </div>
+
+  <div class="callout">
+    <strong>Notice:</strong> In the center of the curve (probabilities between ~0.1 and ~0.9),
+    logit and probit are nearly indistinguishable. The differences become dramatic as you zoom toward
+    the tails. <strong>Cloglog is asymmetric</strong> — it reaches high probabilities faster than
+    it reaches low ones. Cauchit has extremely heavy tails.
+  </div>
+</section>
+
+<!-- ===== SECTION 3: TOLERANCE FRAMEWORK ===== -->
+<section id="tolerance">
+  <h2>The Tolerance Framework (Latent Variable Interpretation)</h2>
+  <p>
+    One of the most intuitive ways to understand link functions is through the
+    <strong>individual tolerance</strong> model. Imagine each person (or organism)
+    has a hidden threshold \(T_i\) — the dose at which they respond. We observe
+    \(Y_i = 1\) when the stimulus \(x\) exceeds that threshold.
+  </p>
+  <div class="formula-box">
+    \[ P(Y=1 \mid x) = P(T \le x) = F(x) \]
+  </div>
+  <p>
+    The <em>distribution of tolerances</em> across individuals determines the link function:
+  </p>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Distribution → Link Function</div>
+      <table>
+        <thead><tr><th>Tolerance distribution</th><th>Link function</th></tr></thead>
+        <tbody>
+          <tr><td>Normal</td><td><span class="badge br">Probit</span></td></tr>
+          <tr><td>Logistic</td><td><span class="badge bl">Logit</span></td></tr>
+          <tr><td>Minimum extreme value (Gumbel)</td><td><span class="badge ba">Cloglog</span></td></tr>
+          <tr><td>Cauchy</td><td><span class="badge bg">Cauchit</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Why Does This Matter?</div>
+      <p style="font-size:.9rem;">
+        The tolerance model gives you a <em>scientific justification</em> for choosing a link function.
+        Instead of asking "which link fits the data?", ask: "what distribution do individual thresholds
+        follow in this population?" If thresholds are plausibly <strong>normally distributed</strong>
+        (as in many psychophysical and genetic settings), the probit is the correct model
+        — even if you can't report odds ratios.
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Interactive: Visualizing Individual Tolerances</div>
+    <p style="font-size:.875rem;margin-bottom:.75rem;">
+      The curve below shows the distribution of individual thresholds in the population.
+      The <strong>vertical line</strong> is the current stimulus level.
+      The <strong>shaded area</strong> = P(Y=1) — the proportion of people whose
+      threshold lies below the stimulus.
+    </p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Stimulus level (x) <span class="val" id="val-stim">0.00</span></label>
+        <input type="range" id="sl-stim" min="-4" max="4" step="0.05" value="0" />
+      </div>
+      <div class="ctrl">
+        <label>Tolerance distribution</label>
+        <select id="sel-dist">
+          <option value="probit">Normal → Probit</option>
+          <option value="logit">Logistic → Logit</option>
+          <option value="cloglog">Gumbel (min) → Cloglog</option>
+          <option value="cauchit">Cauchy → Cauchit</option>
+        </select>
+      </div>
+    </div>
+    <div id="viz-tolerance" style="width:100%;"></div>
+    <div id="tol-prob-display" style="text-align:center;margin-top:.75rem;font-size:1rem;font-weight:600;color:var(--blue-dark);"></div>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:.75rem;">
+      Note: the Gumbel distribution is right-skewed (its median ≈ −0.37), which is why
+      the cloglog model is asymmetric — it approaches 1 faster than it approaches 0.
+      The Cauchy distribution has very heavy tails, making cauchit sensitive to extreme observations.
+    </p>
+  </div>
+</section>
+
+<!-- ===== SECTION 4: INTERPRETABILITY TRADEOFF ===== -->
+<section id="interp">
+  <h2>The Interpretability Tradeoff</h2>
+  <p>
+    The <strong>logit</strong> link's main advantage is concrete coefficient interpretation.
+    When you exponentiate a logit coefficient, you get an <em>odds ratio</em>:
+    a one-unit increase in X multiplies the odds of Y=1 by \(e^{\beta}\).
+    Clinicians and epidemiologists recognize this quantity immediately.
+  </p>
+  <p>
+    So why would anyone give that up?
+  </p>
+
+  <h3>What the Probit Coefficient Means</h3>
+  <p>
+    In the probit model, \(\beta\) has a natural interpretation in the
+    <strong>tolerance / latent variable framework</strong>:
+    a one-unit increase in X shifts the underlying threshold distribution by
+    \(\beta\) <em>standard deviations</em>. When individual thresholds follow a
+    normal distribution, this is the <em>correct</em> effect size measure.
+  </p>
+  <div class="formula-box">
+    \[
+    \text{Logit:} \quad e^\beta = \text{odds ratio (multiplicative)}
+    \qquad\qquad
+    \text{Probit:} \quad \beta = \text{shift in latent variable (SD units)}
+    \]
+  </div>
+
+  <h3>The Comparison Problem in Multi-Group Studies</h3>
+  <div class="callout red">
+    <strong>Critical issue for logit:</strong> In multilevel and multi-group studies, logit
+    coefficients are confounded with the <em>residual variance</em> of the latent
+    variable — which differs across groups even when the true effect is the same.
+    Probit coefficients don't have this problem. This is why structural equation
+    models for binary outcomes almost always use probit.
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">When logit is the right choice</div>
+      <ul style="font-size:.875rem;padding-left:1.25rem;line-height:2;">
+        <li>Odds ratios are clinically meaningful in your field</li>
+        <li>Probabilities stay well away from 0 and 1</li>
+        <li>You need compatibility with existing literature</li>
+        <li>Case-control study designs (logit only!)</li>
+        <li>Logistic regression is standard in your field</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">When probit is the right choice</div>
+      <ul style="font-size:.875rem;padding-left:1.25rem;line-height:2;">
+        <li>Latent normal threshold model is scientifically justified</li>
+        <li>Comparing coefficients across groups / models</li>
+        <li>GWAS and heritability analysis (liability threshold model)</li>
+        <li>Psychophysics and signal detection theory</li>
+        <li>Toxicology (LD50, bioassay) with normal assumptions</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The Scale Factor Approximation</h3>
+  <p>
+    Because the logistic distribution has variance \(\pi^2/3\) while the standard
+    normal has variance 1, the two models give related (but not identical) coefficient
+    estimates. A rough conversion:
+  </p>
+  <div class="formula-box">
+    \[ \hat\beta_\text{logit} \approx \frac{\pi}{\sqrt{3}}\, \hat\beta_\text{probit} \approx 1.81\, \hat\beta_\text{probit} \]
+  </div>
+  <p>
+    This approximation holds well in the center of the distribution but breaks down
+    at the tails — which is exactly where the choice of link function matters most.
+  </p>
+</section>
+
+<!-- ===== SECTION 5: REAL-WORLD EXAMPLES ===== -->
+<section id="examples">
+  <h2>Real-World Examples</h2>
+  <p>
+    The dose-response plot below shows how probit and logit produce nearly identical
+    fitted curves for observed data in the mid-range — but diverge sharply when predicting
+    at extreme doses. Hover over the plot to compare predictions.
+  </p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-panel="tab-dose">Dose-Response (Toxicology)</button>
+    <button class="tab-btn" data-panel="tab-psych">Psychophysics</button>
+    <button class="tab-btn" data-panel="tab-genetics">Genetics / GWAS</button>
+    <button class="tab-btn" data-panel="tab-rare">Rare Events / Survival</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-dose">
+    <p>
+      The probit model was developed precisely for <strong>bioassay and toxicology</strong>.
+      At each dose, a group of animals is exposed and the number responding is recorded.
+      The research question often involves estimating the <strong>LD50</strong> (lethal
+      dose for 50% of the population) and the LD1 / LD99 at extreme quantiles.
+      At those extremes, the choice of link function changes the estimate substantially.
+    </p>
+    <div class="card">
+      <div class="card-title">Simulated Dose-Response Study (n = 20 per group)</div>
+      <div class="check-row">
+        <label class="check-item check-probit">
+          <input type="checkbox" id="chk-dr-probit" checked /> Probit fit (true model)
+        </label>
+        <label class="check-item check-logit">
+          <input type="checkbox" id="chk-dr-logit" checked /> Logit fit
+        </label>
+      </div>
+      <div id="viz-dose" style="width:100%;"></div>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.75rem;">
+        True model: probit with LD50 = 10 mg/kg, slope = 2 on log₁₀ scale.
+        The logit fit uses ≈ 1.81× the probit slope (scale conversion).
+        Both curves look almost identical on screen — until you look at extreme doses.
+      </p>
+    </div>
+    <div class="callout red" style="margin-top:1rem;">
+      <strong>Prediction at extreme doses differs substantially.</strong>
+      At dose = 0.1 mg/kg (far below LD50): probit predicts ≈ 0.003%, logit predicts ≈ 0.07%.
+      At dose = 1000 mg/kg (far above LD50): probit predicts ≈ 99.997%, logit predicts ≈ 99.93%.
+      For LD1/LD99 calculations in drug safety, this difference can matter.
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-psych">
+    <p>
+      <strong>Psychophysics</strong> studies how the senses respond to stimuli. The
+      <em>psychometric function</em> relates stimulus intensity to the probability of
+      detection. Signal detection theory posits that the internal response to a stimulus
+      is normally distributed, making the <strong>probit model the theoretically correct
+      choice</strong>.
+    </p>
+    <div class="card">
+      <div class="card-title">Example: Auditory Detection Threshold</div>
+      <p style="font-size:.875rem;">
+        A listener is presented tones at different intensities. At each intensity,
+        the proportion of "detected" responses is recorded. The underlying model
+        assumes the internal evidence (neural activation) is normally distributed
+        with mean proportional to stimulus intensity.
+      </p>
+      <div class="formula-box">
+        \[ P(\text{detect} \mid x) = \Phi\!\left(\frac{x - \mu}{\sigma}\right) \]
+      </div>
+      <p style="font-size:.875rem;">
+        Here \(\mu\) is the threshold (just-detectable intensity) and \(\sigma\)
+        is the spread of individual variation. The probit coefficient directly
+        estimates \(1/\sigma\): how quickly sensitivity rises with intensity.
+        This has direct physical meaning. The logit coefficient has no analogous
+        physical interpretation.
+      </p>
+      <div class="callout green">
+        <strong>d-prime (d′)</strong> in signal detection theory is exactly a
+        probit-scale effect size. The logit scale has no equivalent. If you
+        want to connect to SDT, you must use probit.
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-genetics">
+    <p>
+      In <strong>genome-wide association studies (GWAS)</strong> and heritability analysis,
+      the <em>liability threshold model</em> assumes a normally distributed underlying
+      liability \(L\). Disease occurs when \(L\) exceeds a threshold — giving the
+      probit model.
+    </p>
+    <div class="card">
+      <div class="card-title">Why Genetics Prefers Probit</div>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:.25rem;">Heritability on the liability scale</h3>
+          <p style="font-size:.875rem;">
+            The transformation from observed-scale heritability to liability-scale
+            heritability requires the probit (normal CDF). The formula uses
+            \(\phi(\Phi^{-1}(K))\) where \(K\) is disease prevalence —
+            quantities defined only for the normal distribution.
+          </p>
+          <div class="formula-box">
+            \[ h^2_\text{liab} = h^2_\text{obs} \cdot \frac{K^2(1-K)^2}{\phi(t)^2} \]
+          </div>
+        </div>
+        <div>
+          <h3 style="margin-top:.25rem;">Cross-group comparison</h3>
+          <p style="font-size:.875rem;">
+            Comparing GWAS results between studies with different disease prevalence is
+            straightforward on the liability scale. Logit-scale effect sizes (log-odds ratios)
+            depend on prevalence in a non-linear way, making meta-analysis more complex.
+          </p>
+          <div class="callout">
+            Tools like LDSC, BOLT-LMM, and SAIGE use probit-based liability models
+            as their default for binary outcomes.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-rare">
+    <p>
+      For <strong>rare events</strong> and <strong>survival-linked binary outcomes</strong>,
+      neither logit nor probit may be best. The complementary log-log (<strong>cloglog</strong>)
+      link arises naturally when the outcome is "did at least one event occur in a period?"
+      with events following a Poisson process.
+    </p>
+    <div class="card">
+      <div class="card-title">When cloglog is the natural choice</div>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:.25rem;">Grouped survival data</h3>
+          <p style="font-size:.875rem;">
+            If individuals are followed over time and we record whether an event occurred
+            in each interval, the probability of the event in interval \(t\) given
+            the hazard \(h(t)\) follows:
+          </p>
+          <div class="formula-box">
+            \[ P(\text{event in } [t, t+1)) = 1 - e^{-h(t)} \]
+          </div>
+          <p style="font-size:.875rem;">
+            This is exactly the cloglog inverse. The cloglog model is the discrete-time
+            analogue of the continuous Cox proportional hazards model — and the coefficients
+            approximate Cox partial likelihood coefficients.
+          </p>
+        </div>
+        <div>
+          <h3 style="margin-top:.25rem;">Why not logit here?</h3>
+          <p style="font-size:.875rem;">
+            Logit applied to grouped survival data doesn't correspond to any standard
+            continuous-time survival model. The hazard ratios you recover won't match
+            Cox model estimates. If you plan to compare your results to survival analysis
+            literature, cloglog is the correct link.
+          </p>
+          <div class="callout amber">
+            The cloglog model is also <strong>not symmetric</strong> around p = 0.5:
+            it reaches high probabilities faster than low ones — appropriate for settings
+            where most follow-up periods result in no event.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION 6: DECISION GUIDE ===== -->
+<section id="guide">
+  <h2>Decision Guide</h2>
+  <p>Use this table to choose the appropriate link function for your analysis.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Link</th>
+        <th>Underlying model</th>
+        <th>Tail behavior</th>
+        <th>Coefficient interpretation</th>
+        <th>Best for</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge bl">Logit</span></td>
+        <td>Logistic latent variable</td>
+        <td>Symmetric; heavier than normal</td>
+        <td>Log-odds ratio: \(e^\beta\) = odds ratio</td>
+        <td>Case-control studies; when OR is the target; general epidemiology</td>
+      </tr>
+      <tr>
+        <td><span class="badge br">Probit</span></td>
+        <td>Normal latent variable (liability)</td>
+        <td>Symmetric; lighter tails than logit</td>
+        <td>SD shift on latent scale; converts to d′</td>
+        <td>Psychophysics; genetics/GWAS; multi-group comparisons; toxicology (LD50)</td>
+      </tr>
+      <tr>
+        <td><span class="badge ba">Cloglog</span></td>
+        <td>Poisson / Gumbel extreme value</td>
+        <td>Asymmetric; reaches 1 fast, 0 slowly</td>
+        <td>Log of negative log of survival; ≈ Cox log-HR</td>
+        <td>Grouped survival data; rare events; time-to-event binary outcomes</td>
+      </tr>
+      <tr>
+        <td><span class="badge bg">Cauchit</span></td>
+        <td>Cauchy latent variable</td>
+        <td>Extremely heavy tails; slowest to reach 0/1</td>
+        <td>Limited; median shift on Cauchy scale</td>
+        <td>Robust alternatives when extreme observations dominate; rare in practice</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="scenario-grid">
+    <div class="scenario-card">
+      <h4>Clinical trial, binary endpoint</h4>
+      <p>Outcome: 30-day mortality. Prevalence ~15%. Comparing treatment arms.</p>
+      <p class="rec" style="color:var(--logit);">→ Logit: odds ratios familiar to clinicians, prevalence in middle range</p>
+    </div>
+    <div class="scenario-card">
+      <h4>GWAS on Type 2 diabetes</h4>
+      <p>5,000 cases, 10,000 controls. Estimating SNP effects and heritability.</p>
+      <p class="rec" style="color:var(--probit);">→ Probit: liability threshold model, heritability formula requires normal CDF</p>
+    </div>
+    <div class="scenario-card">
+      <h4>Auditory threshold detection</h4>
+      <p>Percent correct at each stimulus level. Fitting a psychometric function.</p>
+      <p class="rec" style="color:var(--probit);">→ Probit: SDT assumes normal internal evidence; d′ is probit-scale</p>
+    </div>
+    <div class="scenario-card">
+      <h4>Grouped survival, 12-month intervals</h4>
+      <p>Did the patient experience a CVD event in each 12-month window?</p>
+      <p class="rec" style="color:var(--cloglog);">→ Cloglog: discrete-time hazard model; coefficients approximate Cox HR</p>
+    </div>
+    <div class="scenario-card">
+      <h4>Toxicology bioassay</h4>
+      <p>Estimating LD50 and LD1 from grouped mortality data across 8 dose levels.</p>
+      <p class="rec" style="color:var(--probit);">→ Probit: historical standard; normal log-tolerance assumption; LD1 predictions</p>
+    </div>
+    <div class="scenario-card">
+      <h4>SEM with binary indicators</h4>
+      <p>Binary items loading on a latent factor; comparing factor loadings across groups.</p>
+      <p class="rec" style="color:var(--probit);">→ Probit: logit loadings confounded with residual variance; probit allows comparison</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:1.5rem;">
+    <strong>Practical note:</strong> When probabilities are well within [0.1, 0.9] and
+    you're not extrapolating to extremes, logit and probit will give nearly identical
+    predictions. The choice matters most when: (1) you're extrapolating to very low or
+    high probabilities, (2) the scientific mechanism implies a specific distribution,
+    or (3) you need to compare coefficients across groups or models.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  BIOS 910 &nbsp;·&nbsp; University of Kansas Medical Center &nbsp;·&nbsp;
+  Built with <a href="https://d3js.org">D3.js</a> and
+  <a href="https://www.mathjax.org">MathJax</a>
+</footer>
+
+<script>
+// ============================================================
+//  MATH UTILITIES
+// ============================================================
+
+// Standard normal CDF (Abramowitz & Stegun 26.2.17)
+function Phi(x) {
+  const p = 0.2316419;
+  const b = [0.319381530, -0.356563782, 1.781477937, -1.821255978, 1.330274429];
+  const t = 1 / (1 + p * Math.abs(x));
+  const poly = b[0]*t + b[1]*t**2 + b[2]*t**3 + b[3]*t**4 + b[4]*t**5;
+  const q = Math.exp(-x*x/2) / Math.sqrt(2*Math.PI) * poly;
+  return x >= 0 ? 1 - q : q;
+}
+
+// Standard normal PDF
+function phi(x) { return Math.exp(-x*x/2) / Math.sqrt(2*Math.PI); }
+
+// Logistic PDF
+function logisticPDF(x) { const s = 1/(1+Math.exp(-x)); return s*(1-s); }
+
+// Gumbel minimum extreme value PDF:  CDF = 1 - exp(-exp(x))
+function gumbelMinPDF(x) { return Math.exp(x - Math.exp(x)); }
+
+// Cauchy PDF
+function cauchyPDF(x) { return 1 / (Math.PI * (1 + x*x)); }
+
+// Link inverse functions  η → p
+const LINKS = {
+  logit:   η => 1 / (1 + Math.exp(-η)),
+  probit:  η => Phi(η),
+  cloglog: η => 1 - Math.exp(-Math.exp(η)),
+  cauchit: η => 0.5 + Math.atan(η) / Math.PI
+};
+
+// Tolerance PDFs
+const TPDFS = {
+  logit:   logisticPDF,
+  probit:  phi,
+  cloglog: gumbelMinPDF,
+  cauchit: cauchyPDF
+};
+
+const COLORS = { logit:'#3B82F6', probit:'#EF4444', cloglog:'#F59E0B', cauchit:'#10B981' };
+const NAMES  = { logit:'Logit',   probit:'Probit',  cloglog:'Cloglog',  cauchit:'Cauchit' };
+
+// ============================================================
+//  VIZ 1 — LINK FUNCTION COMPARISON
+// ============================================================
+(function() {
+  const container = document.getElementById('viz-compare');
+  const W = container.clientWidth || 700;
+  const H = Math.min(360, Math.max(260, W * 0.45));
+  const M = { top: 15, right: 20, bottom: 48, left: 52 };
+  const w = W - M.left - M.right;
+  const h = H - M.top - M.bottom;
+
+  const svg = d3.select('#viz-compare').append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('width', '100%')
+    .attr('style', 'display:block;');
+
+  const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+  const xDom = [-5, 5];
+  const xSc = d3.scaleLinear().domain(xDom).range([0, w]);
+  const ySc = d3.scaleLinear().domain([0, 1]).range([h, 0]);
+
+  // grid
+  g.append('g').attr('class','grid')
+    .attr('transform',`translate(0,${h})`)
+    .call(d3.axisBottom(xSc).ticks(10).tickSize(-h).tickFormat(''));
+  g.append('g').attr('class','grid')
+    .call(d3.axisLeft(ySc).ticks(5).tickSize(-w).tickFormat(''));
+
+  // axes
+  g.append('g').attr('transform',`translate(0,${h})`).call(d3.axisBottom(xSc).ticks(10));
+  g.append('g').call(d3.axisLeft(ySc).ticks(5).tickFormat(d3.format('.0%')));
+
+  // axis labels
+  g.append('text').attr('class','axis-label')
+    .attr('x', w/2).attr('y', h+38).attr('text-anchor','middle')
+    .text('Covariate X');
+  g.append('text').attr('class','axis-label')
+    .attr('transform','rotate(-90)')
+    .attr('x',-h/2).attr('y',-40).attr('text-anchor','middle')
+    .text('P(Y = 1 | X)');
+
+  // reference lines
+  g.append('line').attr('x1',0).attr('x2',w).attr('y1',ySc(0.5)).attr('y2',ySc(0.5))
+    .attr('stroke','#D1D5DB').attr('stroke-dasharray','4 3').attr('stroke-width',1);
+  g.append('line').attr('x1',xSc(0)).attr('x2',xSc(0)).attr('y1',0).attr('y2',h)
+    .attr('stroke','#D1D5DB').attr('stroke-dasharray','4 3').attr('stroke-width',1);
+
+  const lineGen = d3.line().x(d => xSc(d.x)).y(d => ySc(d.p)).curve(d3.curveCatmullRom);
+
+  const keys = ['logit','probit','cloglog','cauchit'];
+  const paths = {};
+
+  function buildData(b0, b1) {
+    const xs = d3.range(-5, 5.01, 0.04);
+    const res = {};
+    keys.forEach(k => {
+      res[k] = xs.map(x => ({ x, p: LINKS[k](b0 + b1*x) }));
+    });
+    return res;
+  }
+
+  let b0 = 0, b1 = 1;
+  let data = buildData(b0, b1);
+
+  keys.forEach(k => {
+    paths[k] = g.append('path')
+      .datum(data[k])
+      .attr('fill','none')
+      .attr('stroke', COLORS[k])
+      .attr('stroke-width', 2.5)
+      .attr('d', lineGen);
+  });
+
+  // crosshair + circles
+  const vline = g.append('line').attr('class','crosshair')
+    .attr('y1',0).attr('y2',h).style('display','none');
+
+  const dots = {};
+  keys.forEach(k => {
+    dots[k] = g.append('circle').attr('r',5)
+      .attr('fill',COLORS[k]).attr('stroke','white').attr('stroke-width',1.5)
+      .style('display','none');
+  });
+
+  const tip = document.getElementById('tooltip');
+
+  svg.append('rect')
+    .attr('width',W).attr('height',H).attr('fill','transparent')
+    .on('mousemove', function(event) {
+      const [mx] = d3.pointer(event, g.node());
+      const xVal = xSc.invert(mx);
+      if (xVal < -5 || xVal > 5) { vline.style('display','none'); keys.forEach(k => dots[k].style('display','none')); tip.style.opacity=0; return; }
+      vline.attr('x1',mx).attr('x2',mx).style('display',null);
+      const η = b0 + b1 * xVal;
+      let html = `<b>X = ${xVal.toFixed(2)},  η = ${η.toFixed(2)}</b><br>`;
+      keys.forEach(k => {
+        const el = document.getElementById(`chk-${k}`);
+        if (!el || !el.checked) { dots[k].style('display','none'); return; }
+        const p = LINKS[k](η);
+        dots[k].attr('cx',mx).attr('cy',ySc(p)).style('display',null);
+        html += `<span style="color:${COLORS[k]}">■</span> ${NAMES[k]}: ${(p*100).toFixed(2)}%<br>`;
+      });
+      tip.innerHTML = html;
+      tip.style.opacity = 1;
+      const r = svg.node().getBoundingClientRect();
+      tip.style.left = (r.left + M.left + mx + 12) + 'px';
+      tip.style.top  = (event.clientY - 10) + 'px';
+    })
+    .on('mouseleave', () => {
+      vline.style('display','none');
+      keys.forEach(k => dots[k].style('display','none'));
+      tip.style.opacity = 0;
+    });
+
+  function update() {
+    const d = buildData(b0, b1);
+    keys.forEach(k => {
+      const vis = document.getElementById(`chk-${k}`)?.checked;
+      paths[k].datum(d[k]).attr('d', lineGen).style('display', vis ? null : 'none');
+    });
+  }
+
+  document.getElementById('sl-b0').addEventListener('input', function() {
+    b0 = +this.value;
+    document.getElementById('val-b0').textContent = b0.toFixed(2);
+    update();
+  });
+  document.getElementById('sl-b1').addEventListener('input', function() {
+    b1 = +this.value;
+    document.getElementById('val-b1').textContent = b1.toFixed(2);
+    update();
+  });
+  keys.forEach(k => {
+    document.getElementById(`chk-${k}`)?.addEventListener('change', update);
+  });
+})();
+
+// ============================================================
+//  VIZ 2 — TOLERANCE DISTRIBUTION
+// ============================================================
+(function() {
+  const container = document.getElementById('viz-tolerance');
+  const W = container.clientWidth || 700;
+  const H = Math.min(320, Math.max(230, W * 0.38));
+  const M = { top: 15, right: 20, bottom: 48, left: 52 };
+  const w = W - M.left - M.right;
+  const h = H - M.top - M.bottom;
+
+  const svg = d3.select('#viz-tolerance').append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('width','100%').attr('style','display:block;');
+
+  const g = svg.append('g').attr('transform',`translate(${M.left},${M.top})`);
+
+  const xDom = [-5, 5];
+  const xSc = d3.scaleLinear().domain(xDom).range([0, w]);
+  const ySc = d3.scaleLinear().domain([0, 0.55]).range([h, 0]);
+
+  // axes
+  g.append('g').attr('class','grid')
+    .attr('transform',`translate(0,${h})`)
+    .call(d3.axisBottom(xSc).ticks(10).tickSize(-h).tickFormat(''));
+  g.append('g').attr('transform',`translate(0,${h})`).call(d3.axisBottom(xSc).ticks(10));
+  g.append('g').call(d3.axisLeft(ySc).ticks(4));
+
+  g.append('text').attr('class','axis-label')
+    .attr('x',w/2).attr('y',h+38).attr('text-anchor','middle')
+    .text('Individual tolerance threshold (T)');
+  g.append('text').attr('class','axis-label')
+    .attr('transform','rotate(-90)')
+    .attr('x',-h/2).attr('y',-40).attr('text-anchor','middle')
+    .text('Density');
+
+  // clipping
+  svg.append('defs').append('clipPath').attr('id','tol-clip')
+    .append('rect').attr('width',w).attr('height',h);
+
+  const areaGroup = g.append('g').attr('clip-path','url(#tol-clip)');
+  const xs = d3.range(-5, 5.01, 0.03);
+
+  function getPDF(type) { return xs.map(x => ({x, y: TPDFS[type](x)})); }
+
+  const pdfData = getPDF('probit');
+
+  const lineGen = d3.line().x(d => xSc(d.x)).y(d => ySc(d.y)).curve(d3.curveCatmullRom);
+  const areaGen = d3.area().x(d => xSc(d.x)).y0(ySc(0)).y1(d => ySc(d.y)).curve(d3.curveCatmullRom);
+
+  const shadePath = areaGroup.append('path').attr('fill','#EF444430').attr('stroke','none');
+  const curvePath = areaGroup.append('path').attr('fill','none').attr('stroke',COLORS.probit).attr('stroke-width',2.5);
+
+  const stimLine = g.append('line').attr('y1',0).attr('y2',h)
+    .attr('stroke','#1F2937').attr('stroke-width',2);
+  const stimLabel = g.append('text').attr('text-anchor','middle')
+    .attr('font-size',11).attr('fill','#1F2937').attr('y',-4);
+
+  let stimX = 0, distType = 'probit';
+
+  function buildShadeData(x, type) {
+    const pts = xs.filter(v => v <= x);
+    if (pts.length === 0) return [];
+    // add the exact stimulus x if not already included
+    if (pts[pts.length-1] < x) pts.push(x);
+    return pts.map(v => ({x: v, y: TPDFS[type](v)}));
+  }
+
+  function render() {
+    const color = COLORS[distType];
+    const pdf = getPDF(distType);
+    curvePath.attr('stroke', color).datum(pdf).attr('d', lineGen);
+
+    const shade = buildShadeData(stimX, distType);
+    if (shade.length > 1) {
+      shadePath.attr('fill', color + '30').datum(shade).attr('d', areaGen);
+    } else {
+      shadePath.attr('d','');
+    }
+
+    stimLine.attr('x1', xSc(stimX)).attr('x2', xSc(stimX));
+    stimLabel.attr('x', xSc(stimX)).text(`x = ${stimX.toFixed(2)}`);
+
+    const prob = LINKS[distType](stimX);
+    document.getElementById('tol-prob-display').textContent =
+      `P(Y = 1 | x = ${stimX.toFixed(2)}) = ${(prob*100).toFixed(1)}%`;
+  }
+
+  render();
+
+  document.getElementById('sl-stim').addEventListener('input', function() {
+    stimX = +this.value;
+    document.getElementById('val-stim').textContent = stimX.toFixed(2);
+    render();
+  });
+  document.getElementById('sel-dist').addEventListener('change', function() {
+    distType = this.value;
+    render();
+  });
+})();
+
+// ============================================================
+//  VIZ 3 — DOSE-RESPONSE
+// ============================================================
+(function() {
+  // True model: probit with P = Phi(2*(log10(dose) - 1))
+  // Logit approximation: P = 1/(1+exp(-3.63*(log10(dose)-1)))
+  const obsData = [
+    {dose:0.5,  n:20, y:0},
+    {dose:1.6,  n:20, y:1},
+    {dose:3.2,  n:20, y:3},
+    {dose:10,   n:20, y:10},
+    {dose:31.6, n:20, y:17},
+    {dose:100,  n:20, y:20},
+  ];
+
+  function probitFit(dose) { return Phi(2*(Math.log10(dose)-1)); }
+  function logitFit(dose) { return 1/(1+Math.exp(-3.63*(Math.log10(dose)-1))); }
+
+  const container = document.getElementById('viz-dose');
+  const W = container.clientWidth || 700;
+  const H = Math.min(360, Math.max(260, W * 0.45));
+  const M = { top:15, right:20, bottom:52, left:56 };
+  const w = W - M.left - M.right;
+  const h = H - M.top - M.bottom;
+
+  const svg = d3.select('#viz-dose').append('svg')
+    .attr('viewBox',`0 0 ${W} ${H}`)
+    .attr('width','100%').attr('style','display:block;');
+
+  const g = svg.append('g').attr('transform',`translate(${M.left},${M.top})`);
+
+  const xSc = d3.scaleLog().domain([0.3, 200]).range([0, w]);
+  const ySc = d3.scaleLinear().domain([0, 1]).range([h, 0]);
+
+  g.append('g').attr('class','grid')
+    .attr('transform',`translate(0,${h})`)
+    .call(d3.axisBottom(xSc).tickSize(-h).tickFormat('').tickValues([0.5,1,2,5,10,20,50,100]));
+  g.append('g').attr('class','grid')
+    .call(d3.axisLeft(ySc).ticks(5).tickSize(-w).tickFormat(''));
+
+  g.append('g').attr('transform',`translate(0,${h})`)
+    .call(d3.axisBottom(xSc).tickValues([0.5,1,2,5,10,20,50,100]).tickFormat(d => d));
+  g.append('g').call(d3.axisLeft(ySc).ticks(5).tickFormat(d3.format('.0%')));
+
+  g.append('text').attr('class','axis-label')
+    .attr('x',w/2).attr('y',h+42).attr('text-anchor','middle')
+    .text('Dose (mg/kg)');
+  g.append('text').attr('class','axis-label')
+    .attr('transform','rotate(-90)')
+    .attr('x',-h/2).attr('y',-44).attr('text-anchor','middle')
+    .text('P(response)');
+
+  const doses = [];
+  for (let logd = Math.log10(0.3); logd <= Math.log10(200); logd += 0.01)
+    doses.push(Math.pow(10, logd));
+
+  const lineGen = d3.line().x(d => xSc(d.dose)).y(d => ySc(d.p));
+
+  const probitPath = g.append('path').attr('fill','none')
+    .attr('stroke', COLORS.probit).attr('stroke-width',2.5)
+    .datum(doses.map(dose => ({dose, p: probitFit(dose)})))
+    .attr('d', lineGen);
+
+  const logitPath = g.append('path').attr('fill','none')
+    .attr('stroke', COLORS.logit).attr('stroke-width',2.5)
+    .attr('stroke-dasharray','6 3')
+    .datum(doses.map(dose => ({dose, p: logitFit(dose)})))
+    .attr('d', lineGen);
+
+  // reference lines: LD50
+  g.append('line').attr('x1',xSc(10)).attr('x2',xSc(10)).attr('y1',0).attr('y2',h)
+    .attr('stroke','#9CA3AF').attr('stroke-dasharray','4 3').attr('stroke-width',1);
+  g.append('text').attr('x',xSc(10)+4).attr('y',8).attr('font-size',10).attr('fill','#9CA3AF')
+    .text('LD50 = 10');
+  g.append('line').attr('x1',0).attr('x2',w).attr('y1',ySc(0.5)).attr('y2',ySc(0.5))
+    .attr('stroke','#9CA3AF').attr('stroke-dasharray','4 3').attr('stroke-width',1);
+
+  // observed data
+  g.selectAll('circle.obs').data(obsData).enter()
+    .append('circle').attr('class','obs')
+    .attr('cx', d => xSc(d.dose))
+    .attr('cy', d => ySc(d.y/d.n))
+    .attr('r', 5)
+    .attr('fill','white').attr('stroke','#374151').attr('stroke-width',2);
+
+  // hover interaction
+  const vline = g.append('line').attr('class','crosshair').attr('y1',0).attr('y2',h).style('display','none');
+  const dot1 = g.append('circle').attr('r',5).attr('fill',COLORS.probit).attr('stroke','white').attr('stroke-width',1.5).style('display','none');
+  const dot2 = g.append('circle').attr('r',5).attr('fill',COLORS.logit).attr('stroke','white').attr('stroke-width',1.5).style('display','none');
+  const tip = document.getElementById('tooltip');
+
+  svg.append('rect').attr('width',W).attr('height',H).attr('fill','transparent')
+    .on('mousemove', function(event) {
+      const [mx] = d3.pointer(event, g.node());
+      const dose = xSc.invert(mx);
+      if (dose < 0.3 || dose > 200) { vline.style('display','none'); dot1.style('display','none'); dot2.style('display','none'); tip.style.opacity=0; return; }
+      vline.attr('x1',mx).attr('x2',mx).style('display',null);
+      const pp = probitFit(dose), lp = logitFit(dose);
+      const sp = document.getElementById('chk-dr-probit')?.checked;
+      const sl = document.getElementById('chk-dr-logit')?.checked;
+      if (sp) { dot1.attr('cx',mx).attr('cy',ySc(pp)).style('display',null); }
+      else dot1.style('display','none');
+      if (sl) { dot2.attr('cx',mx).attr('cy',ySc(lp)).style('display',null); }
+      else dot2.style('display','none');
+      let html = `<b>Dose = ${dose.toFixed(1)} mg/kg</b><br>`;
+      if (sp) html += `<span style="color:${COLORS.probit}">■</span> Probit: ${(pp*100).toFixed(3)}%<br>`;
+      if (sl) html += `<span style="color:${COLORS.logit}">■</span> Logit:  ${(lp*100).toFixed(3)}%<br>`;
+      if (sp && sl) html += `<span style="color:#9CA3AF">Δ = ${Math.abs((pp-lp)*100).toFixed(3)}%</span>`;
+      tip.innerHTML = html;
+      tip.style.opacity = 1;
+      const r = svg.node().getBoundingClientRect();
+      tip.style.left = (r.left + M.left + mx + 12) + 'px';
+      tip.style.top  = (event.clientY - 10) + 'px';
+    })
+    .on('mouseleave', () => { vline.style('display','none'); dot1.style('display','none'); dot2.style('display','none'); tip.style.opacity=0; });
+
+  document.getElementById('chk-dr-probit').addEventListener('change', function() {
+    probitPath.style('display', this.checked ? null : 'none');
+  });
+  document.getElementById('chk-dr-logit').addEventListener('change', function() {
+    logitPath.style('display', this.checked ? null : 'none');
+  });
+})();
+
+// ============================================================
+//  TABS
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const bar = btn.closest('.tab-bar');
+    bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const panelId = btn.dataset.panel;
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.toggle('active', p.id === panelId);
+    });
+  });
+});
+</script>
+</body>
+</html>
