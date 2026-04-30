@@ -4,36 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Binary Link Functions: An Interactive Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     :root {
-      --logit:   #3B82F6;
-      --probit:  #EF4444;
-      --cloglog: #F59E0B;
-      --cauchit: #10B981;
+      --logit:   #4C1E4F;
+      --probit:  #FA7E61;
+      --cloglog: #F44174;
+      --cauchit: #7E714E;
       --bg:      #F9FAFB;
       --card:    #FFFFFF;
       --text:    #111827;
       --muted:   #6B7280;
       --border:  #E5E7EB;
-      --blue-dark: #1e3a5f;
+      --blue-dark: #1a5e7a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.65;
     }
     header {
-      background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);
+      background: linear-gradient(135deg, #1a5e7a 0%, #247BA0 100%);
       color: white;
       padding: 3rem 2rem 2.5rem;
       text-align: center;
     }
-    header h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: .4rem; }
+    header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 2.25rem; font-weight: 800; margin-bottom: .4rem; }
     header .sub { font-size: 1.05rem; opacity: .85; max-width: 680px; margin: 0 auto .75rem; }
     header .course { font-size: .85rem; opacity: .65; letter-spacing: .05em; text-transform: uppercase; }
     nav {
@@ -54,6 +57,7 @@
     main { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
     section { margin-bottom: 4rem; scroll-margin-top: 56px; }
     h2 {
+      font-family: 'Playfair Display', Georgia, serif;
       font-size: 1.6rem; font-weight: 700;
       color: var(--blue-dark); margin-bottom: .35rem;
       padding-bottom: .5rem;
@@ -74,14 +78,14 @@
     /* callouts */
     .callout {
       border-left: 4px solid var(--logit);
-      background: #EFF6FF;
+      background: #F5ECF5;
       padding: .9rem 1.1rem;
       border-radius: 0 8px 8px 0;
       margin: 1.1rem 0;
     }
-    .callout.amber { background: #FFFBEB; border-left-color: var(--cloglog); }
-    .callout.red   { background: #FEF2F2; border-left-color: var(--probit); }
-    .callout.green { background: #F0FDF4; border-left-color: var(--cauchit); }
+    .callout.amber { background: #FDEAF0; border-left-color: var(--cloglog); }
+    .callout.red   { background: #FEF0EC; border-left-color: var(--probit); }
+    .callout.green { background: #EEECE5; border-left-color: var(--cauchit); }
     /* controls */
     .controls { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0; }
     .ctrl {
@@ -112,10 +116,10 @@
       border-radius: 4px; font-size: .75rem; font-weight: 600;
       white-space: nowrap;
     }
-    .bl { background: #DBEAFE; color: #1D4ED8; }
-    .br { background: #FEE2E2; color: #991B1B; }
-    .ba { background: #FEF3C7; color: #92400E; }
-    .bg { background: #D1FAE5; color: #065F46; }
+    .bl { background: #EDE3EE; color: #4C1E4F; }
+    .br { background: #FEF0EC; color: #C45030; }
+    .ba { background: #FDEAF0; color: #B80F4A; }
+    .bg { background: #EEECE5; color: #5A5134; }
     /* two-column */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
     @media(max-width:660px) { .two-col { grid-template-columns: 1fr; } header h1 { font-size: 1.65rem; } }
@@ -182,6 +186,36 @@
       color: var(--muted); font-size: .82rem;
       border-top: 1px solid var(--border);
     }
+    /* expandable tolerance examples */
+    .tol-example {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: .6rem;
+      overflow: hidden;
+    }
+    .tol-example summary {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .7rem 1rem;
+      cursor: pointer;
+      font-size: .9rem; font-weight: 600;
+      list-style: none;
+      user-select: none;
+      background: #FAFAFA;
+      transition: background .12s;
+    }
+    .tol-example summary::-webkit-details-marker { display: none; }
+    .tol-example summary::after {
+      content: '▸';
+      margin-left: auto;
+      color: var(--muted);
+      font-size: .8rem;
+      transition: transform .2s;
+    }
+    .tol-example[open] summary::after { transform: rotate(90deg); }
+    .tol-example[open] summary { background: #F3F4F6; }
+    .tol-example .tol-body { padding: .75rem 1rem 1rem; }
+    .tol-example .tol-body p { font-size: .875rem; margin-bottom: .5rem; }
+    .tol-example .tol-body p:last-child { margin-bottom: 0; }
   </style>
 </head>
 <body>
@@ -189,7 +223,7 @@
 <header>
   <h1>Binary Outcome Link Functions</h1>
   <p class="sub">An interactive exploration of logit, probit, complementary log-log, and why choosing the right link matters at the tails</p>
-  <p class="course">BIOS 910 &nbsp;·&nbsp; Biostatistics</p>
+  <p class="course">BIOS 910 &nbsp;·&nbsp; Department of Biostatistics & Data Science  &nbsp;·&nbsp; University of Kansas Medical Center</p>
 </header>
 
 <nav>
@@ -220,12 +254,12 @@
   <p>
     The link function \(g\) maps the probability (which lives in \([0,1]\)) to the
     entire real line (where the linear predictor lives). Different choices of \(g\)
-    produce different models with different assumptions, interpretations, and behaviors
-    — especially at extreme probabilities.
+    produce different models with different assumptions, interpretations, and behaviors.
+    These behaviors are most pronounced at the tails of the probability distribution.
   </p>
   <div class="two-col">
     <div class="card">
-      <div class="card-title">The Four Links We'll Explore</div>
+      <div class="card-title">Four Link Options</div>
       <table>
         <thead><tr><th>Name</th><th>Link \(g(p)\)</th><th>Inverse \(g^{-1}(\eta)\)</th></tr></thead>
         <tbody>
@@ -257,9 +291,8 @@
       <p>
         The <strong>logit</strong> is by far the most popular because its
         coefficients exponentiate to <em>odds ratios</em> — a familiar quantity.
-        But odds ratios aren't always the right lens. When should we give up
-        that interpretability?
-      </p>
+        But odds ratios aren't always the right "lens" for every data type. When 
+        is it worth giving up this interpretability?
       <div class="callout amber">
         The answer almost always comes down to <strong>what happens at the tails</strong>
         (very small or very large probabilities) and what the
@@ -315,24 +348,24 @@
     <strong>Notice:</strong> In the center of the curve (probabilities between ~0.1 and ~0.9),
     logit and probit are nearly indistinguishable. The differences become dramatic as you zoom toward
     the tails. <strong>Cloglog is asymmetric</strong> — it reaches high probabilities faster than
-    it reaches low ones. Cauchit has extremely heavy tails.
+    it reaches low ones. <strong>Cauchit has extremely heavy tails.</strong>
   </div>
 </section>
 
 <!-- ===== SECTION 3: TOLERANCE FRAMEWORK ===== -->
 <section id="tolerance">
-  <h2>The Tolerance Framework (Latent Variable Interpretation)</h2>
+  <h2>Tolerance Framework</h2>
   <p>
     One of the most intuitive ways to understand link functions is through the
-    <strong>individual tolerance</strong> model. Imagine each person (or organism)
-    has a hidden threshold \(T_i\) — the dose at which they respond. We observe
-    \(Y_i = 1\) when the stimulus \(x\) exceeds that threshold.
+    <strong>individual tolerance</strong> model. Imagine each subject
+    has an unknown threshold \(T_i\) — the dose at which they will experience
+    the event. We observe \(Y_i = 1\) when the stimulus \(x\) exceeds that threshold.
   </p>
   <div class="formula-box">
     \[ P(Y=1 \mid x) = P(T \le x) = F(x) \]
   </div>
   <p>
-    The <em>distribution of tolerances</em> across individuals determines the link function:
+    The <em>distribution of tolerances</em> across individuals informs the link function:
   </p>
   <div class="two-col">
     <div class="card">
@@ -350,13 +383,92 @@
     <div class="card">
       <div class="card-title">Why Does This Matter?</div>
       <p style="font-size:.9rem;">
-        The tolerance model gives you a <em>scientific justification</em> for choosing a link function.
+        The tolerance model gives you a <em>justification</em> for choosing a link function.
         Instead of asking "which link fits the data?", ask: "what distribution do individual thresholds
         follow in this population?" If thresholds are plausibly <strong>normally distributed</strong>
         (as in many psychophysical and genetic settings), the probit is the correct model
         — even if you can't report odds ratios.
       </p>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Real-World Tolerance Examples</div>
+    <p style="font-size:.875rem;margin-bottom:1rem;">
+      Each distribution shape arises naturally from a specific kind of biological or physical process.
+      Click a row to see a concrete example where individual thresholds plausibly follow that distribution.
+    </p>
+
+    <details class="tol-example">
+      <summary><span class="badge br">Normal → Probit</span> Auditory detection threshold in psychophysics</summary>
+      <div class="tol-body">
+        <p>
+          In a hearing test, each person has a threshold \(T_i\) — the faintest tone they can detect.
+          Because threshold is determined by many small, additive biological factors (cochlear hair-cell density,
+          neural firing rate, attention), the central limit theorem drives the population distribution of
+          \(T_i\) toward <strong>normal</strong>.
+        </p>
+        <p>
+          The probit model is therefore the natural choice: \(P(\text{detect} \mid x) = \Phi\!\left(\frac{x - \mu}{\sigma}\right)\),
+          where \(x\) is sound intensity in dB. The same logic applies to <strong>LD50 dose-response</strong> curves
+          in toxicology, where lethal thresholds across animals are approximately normally distributed.
+        </p>
+      </div>
+    </details>
+
+    <details class="tol-example">
+      <summary><span class="badge bl">Logistic → Logit</span> Blood-pressure threshold for hypertensive crisis</summary>
+      <div class="tol-body">
+        <p>
+          Suppose each patient has a threshold systolic pressure \(T_i\) above which they experience a
+          hypertensive crisis. If tolerance is shaped by a <strong>multiplicative</strong> cascade of many
+          physiological odds — kidney function, vascular stiffness, renin–angiotensin activity — then the
+          log-odds of exceeding the threshold accumulates additively, producing a <strong>logistic</strong>
+          distribution for \(T_i\).
+        </p>
+        <p>
+          The logistic distribution is nearly identical to the normal but has slightly heavier tails,
+          making it more forgiving of patients with unusually high or low baseline tolerance. This is why
+          logistic regression is a sensible default when no strong mechanistic argument favors probit.
+        </p>
+      </div>
+    </details>
+
+    <details class="tol-example">
+      <summary><span class="badge ba">Gumbel (min) → Cloglog</span> Infection onset after pathogen exposure</summary>
+      <div class="tol-body">
+        <p>
+          After exposure to a pathogen, infection occurs when <em>at least one</em> viable organism
+          successfully evades immune defenses. If there are many independent chances for infection
+          (each virion, each exposure site), the event occurs at the <strong>minimum</strong> of many
+          independent random thresholds — a classic <strong>extreme-value</strong> (Gumbel min) scenario.
+        </p>
+        <p>
+          This produces a <strong>right-skewed</strong> tolerance distribution: most people are infected
+          at low-to-moderate doses, but a long tail of highly resistant individuals exists.
+          The complementary log-log link captures this asymmetry — it rises sharply at low doses
+          and approaches 1 slowly — matching the biology of infectious disease dose-response.
+        </p>
+      </div>
+    </details>
+
+    <details class="tol-example">
+      <summary><span class="badge bg">Cauchy → Cauchit</span> Tumor drug sensitivity in targeted oncology</summary>
+      <div class="tol-body">
+        <p>
+          In targeted cancer therapy, most tumors respond at moderate drug concentrations, but a small
+          fraction are dramatically hypersensitive (e.g., activating mutations) while others are
+          completely resistant (e.g., bypass pathway activation). This bimodal extreme-outlier pattern
+          produces <strong>very heavy tails</strong> in the tolerance distribution.
+        </p>
+        <p>
+          The Cauchy distribution — which has undefined mean and variance — captures exactly this shape.
+          The cauchit link is rarely the first choice in practice because the heavy tails make estimates
+          sensitive to extreme observations, but it is the appropriate model when you have mechanistic
+          reason to expect a non-negligible fraction of extreme responders far from the population center.
+        </p>
+      </div>
+    </details>
   </div>
 
   <div class="card">
@@ -774,7 +886,7 @@ const TPDFS = {
   cauchit: cauchyPDF
 };
 
-const COLORS = { logit:'#3B82F6', probit:'#EF4444', cloglog:'#F59E0B', cauchit:'#10B981' };
+const COLORS = { logit:'#4C1E4F', probit:'#FA7E61', cloglog:'#F44174', cauchit:'#7E714E' };
 const NAMES  = { logit:'Logit',   probit:'Probit',  cloglog:'Cloglog',  cauchit:'Cauchit' };
 
 // ============================================================
@@ -965,7 +1077,7 @@ const NAMES  = { logit:'Logit',   probit:'Probit',  cloglog:'Cloglog',  cauchit:
   const lineGen = d3.line().x(d => xSc(d.x)).y(d => ySc(d.y)).curve(d3.curveCatmullRom);
   const areaGen = d3.area().x(d => xSc(d.x)).y0(ySc(0)).y1(d => ySc(d.y)).curve(d3.curveCatmullRom);
 
-  const shadePath = areaGroup.append('path').attr('fill','#EF444430').attr('stroke','none');
+  const shadePath = areaGroup.append('path').attr('fill','#FA7E6130').attr('stroke','none');
   const curvePath = areaGroup.append('path').attr('fill','none').attr('stroke',COLORS.probit).attr('stroke-width',2.5);
 
   const stimLine = g.append('line').attr('y1',0).attr('y2',h)
